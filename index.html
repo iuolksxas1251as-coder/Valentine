@@ -387,8 +387,8 @@ function enterPhoto(idx){
 function enterVideo(idx){
     fadeVol('out',400);
     const v=idx===7?vid1:vid2;v.currentTime=0;v.play().catch(()=>{});
-    v.onended=function(){showNext(0);autoT=setTimeout(goNext,3000)};
-    showNext(2500);autoT=setTimeout(goNext,60000);
+    v.onended=function(){clrAuto();goNext()};
+    showNext(1500);autoT=setTimeout(goNext,60000);
 }
 
 // -- Finale --
