@@ -88,8 +88,11 @@
         .video-label{margin-top:1rem;font-family:var(--sans);font-size:.75rem;color:var(--dim);letter-spacing:2px}
 
         /* ===== FINALE ===== */
-        .finale-bouquet{font-size:clamp(3rem,10vw,5.5rem);opacity:0;transform:scale(0) rotate(-20deg);transition:transform 1.4s cubic-bezier(.175,.885,.32,1.275),opacity .8s;filter:drop-shadow(0 0 40px rgba(255,45,85,.5));margin-bottom:1.2rem;text-align:center;line-height:1.3}
+        .finale-bouquet{opacity:0;transform:scale(0) rotate(-20deg);transition:transform 1.4s cubic-bezier(.175,.885,.32,1.275),opacity .8s;filter:drop-shadow(0 0 40px rgba(255,255,255,.3));margin-bottom:1.5rem;text-align:center}
+        .finale-bouquet img{width:auto;height:auto;max-width:min(70vw,320px);max-height:calc(var(--vh,1vh)*40);object-fit:contain;border-radius:8px}
         .slide.active .finale-bouquet{opacity:1;transform:scale(1) rotate(0)}
+        .finale-bouquet.float{animation:bouquetFloat 3s ease-in-out infinite}
+        @keyframes bouquetFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(1deg)}}
         .finale-lines{text-align:center;min-height:200px}
         .finale-line{font-size:clamp(1.1rem,3.8vw,1.6rem);line-height:2.2;opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s}
         .finale-line.shown{opacity:1;transform:translateY(0)}
@@ -207,7 +210,7 @@
 
 <!-- SLIDE 9 : FINALE -->
 <div class="slide" data-i="9">
-    <div class="finale-bouquet">&#128144;&#127801;&#128144;&#127801;&#128144;<br>&#127801;&#128144;&#127801;</div>
+    <div class="finale-bouquet" id="finaleBouquet"><img src="media/bouquet.jpg" alt="bouquet"></div>
     <div class="finale-lines" id="finaleLines"></div>
 </div>
 
@@ -379,6 +382,8 @@ function enterVideo(idx){
 // -- Finale --
 function enterFinale(){
     fadeVol('in',800);launchPetals(50);
+    const bq=document.getElementById('finaleBouquet');
+    setTimeout(()=>bq.classList.add('float'),1600);
     const c=document.getElementById('finaleLines');c.innerHTML='';
     FINALE.forEach((ln,i)=>{
         const p=document.createElement('p');p.className='finale-line';p.textContent=ln;c.appendChild(p);
