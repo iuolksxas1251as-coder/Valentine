@@ -6,491 +6,373 @@
     <title>A Surprise For You</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Thai:wght@300;400;600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Sans+Thai:wght@300;400;600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
         :root {
             --bg: #0a0008;
             --primary: #ff2d55;
-            --primary-soft: #ff6b9d;
+            --soft: #ff6b9d;
             --gold: #ffd700;
             --rose: #b76e79;
             --text: #fff5f5;
-            --text-dim: rgba(255,245,245,0.55);
-            --font-cursive: 'Great Vibes', cursive;
-            --font-serif: 'Playfair Display', serif;
-            --font-thai: 'Noto Sans Thai', sans-serif;
-            --font-sans: 'Montserrat', sans-serif;
+            --dim: rgba(255,245,245,.5);
+            --cursive: 'Great Vibes', cursive;
+            --thai: 'Noto Sans Thai', sans-serif;
+            --sans: 'Montserrat', sans-serif;
+            --vh: 1vh;
         }
 
         html, body {
-            width: 100%; height: 100%;
-            overflow: hidden;
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-thai);
+            width:100%; height:100%;
+            overflow:hidden;
+            background:var(--bg);
+            color:var(--text);
+            font-family:var(--thai);
+            -webkit-tap-highlight-color:transparent;
         }
 
-        /* ========== BACKGROUND LAYERS ========== */
-        #bg-stars, #bg-hearts {
-            position: fixed; inset: 0;
-            pointer-events: none; z-index: 0;
-        }
+        /* ===== BACKGROUND ===== */
+        #bgStars, #bgHearts { position:fixed; inset:0; pointer-events:none; z-index:0; }
         .star {
-            position: absolute; border-radius: 50%; background: #fff;
-            animation: twinkle var(--d) ease-in-out infinite;
-            animation-delay: var(--dl);
+            position:absolute; border-radius:50%; background:#fff;
+            animation:twinkle var(--d) ease-in-out infinite; animation-delay:var(--dl);
         }
-        @keyframes twinkle {
-            0%,100% { opacity:.15; transform:scale(.7); }
-            50% { opacity:1; transform:scale(1.3); }
+        @keyframes twinkle { 0%,100%{opacity:.12;transform:scale(.7)} 50%{opacity:1;transform:scale(1.3)} }
+        .fh {
+            position:absolute; bottom:-40px; opacity:0; pointer-events:none;
+            animation:fhUp var(--d) linear infinite; animation-delay:var(--dl);
+            font-size:var(--sz); color:var(--primary);
         }
-        .fheart {
-            position: absolute; bottom: -40px;
-            opacity: 0; pointer-events: none;
-            animation: floatH var(--d) linear infinite;
-            animation-delay: var(--dl);
-            font-size: var(--sz);
-            color: var(--primary);
-        }
-        @keyframes floatH {
-            0%   { transform:translateY(0) rotate(0); opacity:0; }
-            8%   { opacity: var(--mo,.3); }
-            50%  { transform:translateY(-55vh) rotate(180deg) translateX(var(--dx,15px)); }
-            85%  { opacity: var(--mo,.3); }
-            100% { transform:translateY(-115vh) rotate(360deg); opacity:0; }
+        @keyframes fhUp {
+            0%{transform:translateY(0) rotate(0);opacity:0}
+            8%{opacity:var(--mo,.25)}
+            50%{transform:translateY(-55vh) rotate(180deg) translateX(var(--dx,10px))}
+            85%{opacity:var(--mo,.25)}
+            100%{transform:translateY(-115vh) rotate(360deg);opacity:0}
         }
 
-        /* ========== SLIDE SYSTEM ========== */
+        /* ===== TRANSITION OVERLAY ===== */
+        #transOverlay {
+            position:fixed; inset:0; z-index:500;
+            background:radial-gradient(circle, rgba(255,45,85,.15), var(--bg) 70%);
+            opacity:0; pointer-events:none;
+            transition:opacity .4s ease;
+        }
+        #transOverlay.on { opacity:1; }
+
+        /* ===== SLIDE SYSTEM ===== */
         .slide {
-            position: fixed; inset: 0;
-            display: flex; align-items: center; justify-content: center;
-            flex-direction: column;
-            padding: 2rem;
-            opacity: 0; visibility: hidden;
-            transition: opacity .7s ease, visibility .7s;
-            z-index: 10;
+            position:fixed; inset:0; z-index:10;
+            display:flex; align-items:center; justify-content:center;
+            flex-direction:column; padding:1.5rem;
+            opacity:0; visibility:hidden;
+            transform:scale(1.06);
+            transition: opacity .65s ease, transform .65s ease, visibility .65s;
         }
         .slide.active {
-            opacity: 1; visibility: visible;
+            opacity:1; visibility:visible; transform:scale(1);
+        }
+        .slide.leaving {
+            opacity:0; transform:scale(.92); visibility:visible;
         }
 
-        /* ========== INTRO SLIDE ========== */
+        /* ===== INTRO ===== */
         .intro-sub {
-            font-family: var(--font-sans);
-            font-weight: 300; font-size: clamp(.8rem,2.2vw,1rem);
-            color: var(--text-dim);
-            letter-spacing: 3px; text-transform: uppercase;
-            margin-bottom: 2.5rem;
-            opacity:0; animation: fadeUp 1.2s ease .5s forwards;
+            font-family:var(--sans); font-weight:300;
+            font-size:clamp(.75rem,2.2vw,1rem);
+            color:var(--dim); letter-spacing:3px; text-transform:uppercase;
+            margin-bottom:2.5rem;
+            opacity:0; animation:fadeUp 1.2s ease .5s forwards;
         }
-        .envelope-wrap {
-            cursor: pointer; margin-bottom: 2rem;
-            opacity:0; animation: fadeUp 1s ease 1s forwards;
+        .env-wrap {
+            cursor:pointer; margin-bottom:2rem;
+            opacity:0; animation:fadeUp 1s ease 1s forwards;
         }
         .envelope {
-            width: clamp(200px,50vw,280px);
-            height: clamp(140px,35vw,190px);
-            position: relative; perspective: 800px;
+            width:clamp(200px,50vw,280px); height:clamp(140px,35vw,190px);
+            position:relative; perspective:800px;
         }
         .env-body {
             width:100%; height:100%;
-            background: linear-gradient(145deg,#c9956b,#a87544);
-            border-radius: 4px; position: relative;
-            box-shadow: 0 15px 50px rgba(255,29,68,.2), 0 5px 20px rgba(0,0,0,.5);
+            background:linear-gradient(145deg,#c9956b,#a87544);
+            border-radius:4px; position:relative;
+            box-shadow:0 15px 50px rgba(255,29,68,.2),0 5px 20px rgba(0,0,0,.5);
         }
-        .env-body::after {
-            content:''; position:absolute; inset:8px;
-            border:1px solid rgba(255,255,255,.1); border-radius:2px;
-        }
+        .env-body::after { content:''; position:absolute; inset:8px; border:1px solid rgba(255,255,255,.1); border-radius:2px; }
         .env-flap {
             position:absolute; top:0; left:0; width:100%; height:55%;
-            background: linear-gradient(165deg,#d4a574,#b8854a);
-            clip-path: polygon(0 0,50% 100%,100% 0);
-            transform-origin: top center;
-            transition: transform .8s cubic-bezier(.4,0,.2,1);
-            z-index:2;
+            background:linear-gradient(165deg,#d4a574,#b8854a);
+            clip-path:polygon(0 0,50% 100%,100% 0);
+            transform-origin:top center;
+            transition:transform .8s cubic-bezier(.4,0,.2,1); z-index:2;
         }
-        .envelope-wrap.opened .env-flap { transform: rotateX(180deg); }
+        .env-wrap.opened .env-flap { transform:rotateX(180deg); }
         .env-inner {
             position:absolute; top:0; left:0; width:100%; height:55%;
-            background: linear-gradient(165deg,#f5e6d3,#e8d5c0);
-            clip-path: polygon(0 0,50% 100%,100% 0);
-            z-index:1;
+            background:linear-gradient(165deg,#f5e6d3,#e8d5c0);
+            clip-path:polygon(0 0,50% 100%,100% 0); z-index:1;
         }
         .env-seal {
-            position:absolute; top:28%; left:50%;
-            transform:translate(-50%,-50%); z-index:3;
+            position:absolute; top:28%; left:50%; transform:translate(-50%,-50%); z-index:3;
             width:48px; height:48px;
-            background: radial-gradient(circle,#ff2d55,#c41e3a);
-            border-radius:50%;
+            background:radial-gradient(circle,#ff2d55,#c41e3a); border-radius:50%;
             display:flex; align-items:center; justify-content:center;
             font-size:22px; color:#fff;
-            box-shadow: 0 0 20px rgba(255,45,85,.5);
-            animation: sealPulse 2s ease-in-out infinite;
-            transition: opacity .5s, transform .5s;
+            box-shadow:0 0 20px rgba(255,45,85,.5);
+            animation:sealPulse 2s ease-in-out infinite;
+            transition:opacity .5s, transform .5s;
         }
-        .envelope-wrap.opened .env-seal {
-            opacity:0; transform:translate(-50%,-50%) scale(2);
-        }
-        @keyframes sealPulse {
-            0%,100%{box-shadow:0 0 20px rgba(255,45,85,.5)}
-            50%{box-shadow:0 0 35px rgba(255,45,85,.8)}
-        }
+        .env-wrap.opened .env-seal { opacity:0; transform:translate(-50%,-50%) scale(2); }
+        @keyframes sealPulse { 0%,100%{box-shadow:0 0 20px rgba(255,45,85,.5)} 50%{box-shadow:0 0 35px rgba(255,45,85,.8)} }
         .env-letter {
-            position:absolute; bottom:10px; left:50%;
-            transform:translateX(-50%);
-            width:70%; height:0;
-            background:#fff; border-radius:3px 3px 0 0;
-            transition: height .6s cubic-bezier(.4,0,.2,1) .35s;
-            z-index:0;
-            display:flex; align-items:center; justify-content:center;
-            overflow:hidden;
+            position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+            width:70%; height:0; background:#fff; border-radius:3px 3px 0 0;
+            transition:height .6s cubic-bezier(.4,0,.2,1) .35s;
+            display:flex; align-items:center; justify-content:center; overflow:hidden;
         }
-        .env-letter span {
-            color:var(--primary); font-family:var(--font-cursive);
-            font-size:1rem; white-space:nowrap;
-            opacity:0; transition: opacity .5s ease .9s;
-        }
-        .envelope-wrap.opened .env-letter { height:48px; }
-        .envelope-wrap.opened .env-letter span { opacity:1; }
+        .env-letter span { color:var(--primary); font-family:var(--cursive); font-size:1rem; white-space:nowrap; opacity:0; transition:opacity .5s ease .9s; }
+        .env-wrap.opened .env-letter { height:48px; }
+        .env-wrap.opened .env-letter span { opacity:1; }
         .start-btn {
-            font-family: var(--font-thai); font-weight:400;
-            font-size: .9rem; letter-spacing:2px;
-            color: var(--text);
-            background: transparent;
+            font-family:var(--thai); font-weight:400; font-size:.9rem; letter-spacing:2px;
+            color:var(--text); background:transparent;
             border:1px solid rgba(255,107,157,.4);
-            padding: 14px 44px; border-radius:50px;
+            padding:14px 44px; border-radius:50px;
             cursor:pointer; position:relative; overflow:hidden;
-            transition: all .4s;
-            opacity:0; animation: fadeUp 1s ease 1.5s forwards;
+            transition:all .4s;
+            opacity:0; animation:fadeUp 1s ease 1.5s forwards;
         }
         .start-btn::before {
             content:''; position:absolute; inset:0;
-            background: linear-gradient(135deg,var(--primary),#e91e63);
+            background:linear-gradient(135deg,var(--primary),#e91e63);
             opacity:0; transition:opacity .4s; border-radius:50px;
         }
-        .start-btn:hover::before, .start-btn:active::before { opacity:1; }
-        .start-btn:hover, .start-btn:active {
-            border-color:transparent; transform:scale(1.05);
-            box-shadow: 0 0 30px rgba(255,45,85,.3);
-        }
+        .start-btn:hover::before,.start-btn:active::before { opacity:1; }
+        .start-btn:hover,.start-btn:active { border-color:transparent; transform:scale(1.05); box-shadow:0 0 30px rgba(255,45,85,.3); }
         .start-btn span { position:relative; z-index:1; }
 
-        /* ========== MESSAGE SLIDE ========== */
+        /* ===== MESSAGE ===== */
         .msg-card {
-            background: rgba(255,255,255,.04);
-            border:1px solid rgba(255,107,157,.15);
-            border-radius: 20px;
-            padding: clamp(2rem,5vw,3rem);
-            max-width: 520px; width: 90%;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 20px 60px rgba(0,0,0,.3), 0 0 40px rgba(255,45,85,.08);
-            transform: scale(.85); opacity:0;
-            transition: transform .8s cubic-bezier(.175,.885,.32,1.275), opacity .8s;
+            background:rgba(255,255,255,.04); border:1px solid rgba(255,107,157,.15);
+            border-radius:20px; padding:clamp(1.8rem,5vw,3rem);
+            max-width:540px; width:92%; text-align:center;
+            backdrop-filter:blur(10px);
+            box-shadow:0 20px 60px rgba(0,0,0,.3),0 0 40px rgba(255,45,85,.08);
+            transform:scale(.8); opacity:0;
+            transition:transform .9s cubic-bezier(.175,.885,.32,1.275) .15s, opacity .8s .15s;
         }
-        .slide.active .msg-card {
-            transform: scale(1); opacity:1;
-        }
-        .msg-card .icon { font-size:3rem; margin-bottom:1.2rem; display:block; }
-        .msg-card .typewriter-text {
-            font-size: clamp(1rem,3vw,1.2rem);
-            line-height:2; color:var(--text);
-            min-height: 3rem;
-        }
-        .typewriter-cursor {
+        .slide.active .msg-card { transform:scale(1); opacity:1; }
+        .msg-card .icon { font-size:3rem; margin-bottom:1rem; display:block; }
+        .msg-card .tw-text { font-size:clamp(1rem,3.2vw,1.25rem); line-height:2; min-height:3rem; }
+        .tw-cursor {
             display:inline-block; width:2px; height:1.1em;
-            background:var(--primary-soft);
-            margin-left:2px; vertical-align:text-bottom;
-            animation: blink .6s step-end infinite;
+            background:var(--soft); margin-left:2px; vertical-align:text-bottom;
+            animation:blink .6s step-end infinite;
         }
         @keyframes blink { 50%{opacity:0} }
 
-        /* ========== PHOTO SLIDE ========== */
+        /* ===== PHOTO ===== */
         .photo-frame {
-            background: #fff;
-            padding: 10px 10px 45px;
-            border-radius: 4px;
-            box-shadow: 0 25px 70px rgba(0,0,0,.5), 0 0 50px rgba(255,45,85,.12);
-            transform: scale(0) rotate(-8deg);
-            opacity: 0;
-            max-width: 85vw;
-            max-height: 70vh;
+            background:#fff; border-radius:6px;
+            padding:clamp(6px,1.5vw,12px); padding-bottom:clamp(28px,6vw,50px);
+            box-shadow:0 25px 80px rgba(0,0,0,.5),0 0 60px rgba(255,45,85,.1);
+            opacity:0; transform:scale(0) rotate(-5deg);
+            will-change:transform,opacity;
         }
         .photo-frame img {
-            display:block;
-            max-width: min(75vw, 420px);
-            max-height: 55vh;
-            border-radius: 2px;
-            object-fit: contain;
-            background: #1a1a1a;
-        }
-        .photo-frame .caption {
-            text-align:center; padding-top:10px;
-            font-family:var(--font-cursive); font-size:1.1rem;
-            color:#888;
+            display:block; border-radius:3px;
+            width:auto; height:auto;
+            max-width:min(88vw, 500px);
+            max-height:calc(var(--vh,1vh) * 60);
+            object-fit:contain;
         }
         .photo-counter {
-            position:absolute; bottom: clamp(90px,15vh,120px);
-            font-family:var(--font-sans); font-size:.75rem;
-            color:var(--text-dim); letter-spacing:2px;
+            margin-top:1.2rem;
+            font-family:var(--sans); font-size:.75rem;
+            color:var(--dim); letter-spacing:3px;
         }
 
-        /* Photo pop animations */
-        .slide.active .photo-frame.anim-pop {
-            animation: photoPop .9s cubic-bezier(.175,.885,.32,1.275) forwards;
-        }
-        .slide.active .photo-frame.anim-slide-up {
-            animation: photoSlideUp .9s cubic-bezier(.175,.885,.32,1.275) forwards;
-        }
-        .slide.active .photo-frame.anim-zoom {
-            animation: photoZoom .9s cubic-bezier(.175,.885,.32,1.275) forwards;
-        }
-        .slide.active .photo-frame.anim-rotate-in {
-            animation: photoRotateIn .9s cubic-bezier(.175,.885,.32,1.275) forwards;
-        }
-        .slide.active .photo-frame.anim-drop {
-            animation: photoDrop .9s cubic-bezier(.175,.885,.32,1.275) forwards;
-        }
+        /* Photo entrance classes - applied by JS */
+        .anim-active.a-pop       { animation:photoPop 1s cubic-bezier(.175,.885,.32,1.275) forwards; }
+        .anim-active.a-slideUp   { animation:photoSlideUp 1s cubic-bezier(.175,.885,.32,1.275) forwards; }
+        .anim-active.a-zoom      { animation:photoZoom 1s cubic-bezier(.175,.885,.32,1.275) forwards; }
+        .anim-active.a-rotateIn  { animation:photoRotateIn 1.1s cubic-bezier(.175,.885,.32,1.275) forwards; }
+        .anim-active.a-drop      { animation:photoDrop 1s cubic-bezier(.175,.885,.32,1.275) forwards; }
 
         @keyframes photoPop {
-            0%   { transform:scale(0) rotate(-5deg); opacity:0; }
-            60%  { transform:scale(1.08) rotate(2deg); opacity:1; }
-            80%  { transform:scale(.96) rotate(-1deg); }
-            100% { transform:scale(1) rotate(0); opacity:1; }
+            0%{transform:scale(0) rotate(-5deg);opacity:0}
+            55%{transform:scale(1.1) rotate(2deg);opacity:1}
+            75%{transform:scale(.96) rotate(-1deg)}
+            100%{transform:scale(1) rotate(0);opacity:1}
         }
         @keyframes photoSlideUp {
-            0%   { transform:translateY(80px) scale(.7) rotate(3deg); opacity:0; }
-            60%  { transform:translateY(-10px) scale(1.04) rotate(-1deg); opacity:1; }
-            100% { transform:translateY(0) scale(1) rotate(0); opacity:1; }
+            0%{transform:translateY(100px) scale(.6) rotate(4deg);opacity:0}
+            55%{transform:translateY(-12px) scale(1.06) rotate(-1.5deg);opacity:1}
+            100%{transform:translateY(0) scale(1) rotate(0);opacity:1}
         }
         @keyframes photoZoom {
-            0%   { transform:scale(1.8) rotate(0); opacity:0; filter:blur(8px); }
-            100% { transform:scale(1) rotate(0); opacity:1; filter:blur(0); }
+            0%{transform:scale(2);opacity:0;filter:blur(12px)}
+            100%{transform:scale(1);opacity:1;filter:blur(0)}
         }
         @keyframes photoRotateIn {
-            0%   { transform:scale(0) rotate(-180deg); opacity:0; }
-            60%  { transform:scale(1.05) rotate(5deg); opacity:1; }
-            100% { transform:scale(1) rotate(0); opacity:1; }
+            0%{transform:scale(0) rotate(-200deg);opacity:0}
+            55%{transform:scale(1.08) rotate(6deg);opacity:1}
+            100%{transform:scale(1) rotate(0);opacity:1}
         }
         @keyframes photoDrop {
-            0%   { transform:translateY(-100px) scale(.6) rotate(-8deg); opacity:0; }
-            50%  { transform:translateY(15px) scale(1.06) rotate(2deg); opacity:1; }
-            70%  { transform:translateY(-5px) scale(.98) rotate(-1deg); }
-            100% { transform:translateY(0) scale(1) rotate(0); opacity:1; }
+            0%{transform:translateY(-120px) scale(.5) rotate(-10deg);opacity:0}
+            45%{transform:translateY(20px) scale(1.08) rotate(3deg);opacity:1}
+            65%{transform:translateY(-8px) scale(.97) rotate(-1deg)}
+            100%{transform:translateY(0) scale(1) rotate(0);opacity:1}
         }
 
-        /* ========== VIDEO SLIDE ========== */
-        .video-wrap {
-            width: min(90vw, 560px);
-            aspect-ratio: 16/9;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 25px 70px rgba(0,0,0,.5), 0 0 40px rgba(255,45,85,.1);
-            background: #111;
-            transform: scale(.9); opacity:0;
-            transition: transform .7s cubic-bezier(.175,.885,.32,1.275), opacity .7s;
+        /* ===== VIDEO ===== */
+        .video-outer {
+            width:min(94vw, 720px);
+            max-height:calc(var(--vh,1vh) * 70);
+            border-radius:16px; overflow:hidden;
+            box-shadow:0 25px 80px rgba(0,0,0,.5),0 0 50px rgba(255,45,85,.1);
+            background:#000;
+            transform:scale(.85); opacity:0;
+            transition:transform .8s cubic-bezier(.175,.885,.32,1.275) .1s, opacity .7s .1s;
         }
-        .slide.active .video-wrap {
-            transform: scale(1); opacity:1;
-        }
-        .video-wrap iframe, .video-wrap video {
-            width:100%; height:100%; border:none;
+        .slide.active .video-outer { transform:scale(1); opacity:1; }
+        .video-outer video {
+            display:block; width:100%; height:auto;
+            max-height:calc(var(--vh,1vh) * 70);
+            object-fit:contain;
         }
         .video-label {
-            margin-top:1.2rem;
-            font-family:var(--font-sans); font-size:.75rem;
-            color:var(--text-dim); letter-spacing:2px;
+            margin-top:1rem;
+            font-family:var(--sans); font-size:.75rem;
+            color:var(--dim); letter-spacing:2px;
         }
 
-        /* ========== FINALE SLIDE ========== */
+        /* ===== FINALE ===== */
         .finale-flower {
-            font-size: clamp(4rem,12vw,7rem);
-            opacity:0; transform:scale(0);
-            transition: transform 1.2s cubic-bezier(.175,.885,.32,1.275), opacity .8s;
-            filter: drop-shadow(0 0 30px rgba(255,45,85,.4));
-            margin-bottom: 1.5rem;
+            font-size:clamp(4rem,14vw,8rem);
+            opacity:0; transform:scale(0) rotate(-30deg);
+            transition:transform 1.4s cubic-bezier(.175,.885,.32,1.275), opacity .8s;
+            filter:drop-shadow(0 0 40px rgba(255,45,85,.5));
+            margin-bottom:1.5rem;
         }
-        .slide.active .finale-flower {
-            opacity:1; transform:scale(1);
-        }
-        .finale-lines {
-            text-align:center;
-            min-height: 200px;
-        }
+        .slide.active .finale-flower { opacity:1; transform:scale(1) rotate(0); }
+        .finale-lines { text-align:center; min-height:200px; }
         .finale-line {
-            font-size: clamp(1.1rem,3.5vw,1.5rem);
-            line-height: 2.2;
-            opacity:0; transform:translateY(15px);
-            transition: opacity .6s, transform .6s;
+            font-size:clamp(1.1rem,3.8vw,1.6rem); line-height:2.2;
+            opacity:0; transform:translateY(18px);
+            transition:opacity .7s, transform .7s;
         }
-        .finale-line.shown {
-            opacity:1; transform:translateY(0);
-        }
+        .finale-line.shown { opacity:1; transform:translateY(0); }
 
-        /* ========== NAVIGATION ========== */
+        /* ===== NAV BUTTON ===== */
         .nav-next {
-            position:fixed; bottom: clamp(28px,5vh,40px);
-            right: clamp(20px,5vw,40px);
-            z-index:100;
-            width:56px; height:56px; border-radius:50%;
-            background: linear-gradient(135deg,var(--primary),#e91e63);
-            border:none; color:#fff;
-            font-size:1.3rem; cursor:pointer;
+            position:fixed; bottom:max(env(safe-area-inset-bottom,0px) + 24px, 28px);
+            right:clamp(16px,4vw,36px); z-index:100;
+            width:58px; height:58px; border-radius:50%;
+            background:linear-gradient(135deg,var(--primary),#e91e63);
+            border:none; color:#fff; cursor:pointer;
             display:flex; align-items:center; justify-content:center;
-            box-shadow: 0 8px 30px rgba(255,45,85,.35);
-            opacity:0; transform:scale(.5);
-            transition: opacity .4s, transform .4s;
+            box-shadow:0 8px 30px rgba(255,45,85,.4);
+            opacity:0; transform:scale(.4) translateY(20px);
+            transition:opacity .5s, transform .5s cubic-bezier(.175,.885,.32,1.275);
             pointer-events:none;
         }
-        .nav-next.show {
-            opacity:1; transform:scale(1); pointer-events:auto;
-        }
-        .nav-next:hover { transform:scale(1.1); }
-        .nav-next:active { transform:scale(.95); }
-        .nav-next svg {
-            width:22px; height:22px; fill:none;
-            stroke:#fff; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round;
-        }
+        .nav-next.show { opacity:1; transform:scale(1) translateY(0); pointer-events:auto; }
+        .nav-next:hover { transform:scale(1.12) translateY(0); }
+        .nav-next:active { transform:scale(.92) translateY(0); }
+        .nav-next svg { width:24px; height:24px; fill:none; stroke:#fff; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
 
-        /* ========== PROGRESS DOTS ========== */
-        .progress-bar {
-            position:fixed; bottom: clamp(28px,5vh,40px);
-            left:50%; transform:translateX(-50%);
-            z-index:100;
-            display:flex; gap:8px;
-            opacity:0; transition: opacity .5s;
+        /* ===== PROGRESS ===== */
+        .prog {
+            position:fixed; bottom:max(env(safe-area-inset-bottom,0px) + 28px, 32px);
+            left:50%; transform:translateX(-50%); z-index:100;
+            display:flex; gap:7px;
+            opacity:0; transition:opacity .5s;
         }
-        .progress-bar.show { opacity:1; }
-        .pdot {
+        .prog.show { opacity:1; }
+        .pd {
             width:8px; height:8px; border-radius:50%;
-            background: rgba(255,107,157,.2);
-            transition: all .4s;
+            background:rgba(255,107,157,.18); transition:all .4s;
         }
-        .pdot.done { background: rgba(255,107,157,.5); }
-        .pdot.current {
-            background:var(--primary);
-            transform:scale(1.4);
-            box-shadow: 0 0 10px rgba(255,45,85,.5);
-        }
+        .pd.done { background:rgba(255,107,157,.45); }
+        .pd.cur { background:var(--primary); transform:scale(1.5); box-shadow:0 0 12px rgba(255,45,85,.6); }
 
-        /* ========== MUSIC TOGGLE ========== */
-        .music-btn {
-            position:fixed; top:16px; right:16px; z-index:200;
-            width:42px; height:42px; border-radius:50%;
-            background:rgba(255,45,85,.12);
-            border:1px solid rgba(255,107,157,.2);
-            cursor:pointer;
-            display:none; align-items:center; justify-content:center;
-            backdrop-filter:blur(10px);
-            transition:all .3s;
+        /* ===== MUSIC BTN ===== */
+        .mu-btn {
+            position:fixed; top:max(env(safe-area-inset-top,0px) + 12px, 16px);
+            right:16px; z-index:200;
+            width:44px; height:44px; border-radius:50%;
+            background:rgba(255,45,85,.12); border:1px solid rgba(255,107,157,.2);
+            cursor:pointer; display:none; align-items:center; justify-content:center;
+            backdrop-filter:blur(10px); transition:all .3s;
         }
-        .music-btn.show { display:flex; }
-        .music-btn:hover { background:rgba(255,45,85,.25); }
+        .mu-btn.show { display:flex; }
+        .mu-btn:hover { background:rgba(255,45,85,.25); }
         .mbars { display:flex; align-items:flex-end; gap:2px; height:16px; }
-        .mbars i {
-            width:3px; background:var(--primary-soft);
-            border-radius:1px;
-            animation: mbar .7s ease-in-out infinite alternate;
-        }
+        .mbars i { width:3px; background:var(--soft); border-radius:1px; animation:mb .7s ease-in-out infinite alternate; }
         .mbars i:nth-child(1){height:35%;animation-delay:0s}
         .mbars i:nth-child(2){height:65%;animation-delay:.15s}
         .mbars i:nth-child(3){height:45%;animation-delay:.3s}
         .mbars i:nth-child(4){height:75%;animation-delay:.1s}
-        .music-btn.muted .mbars i { animation:none; height:3px!important; }
-        @keyframes mbar { 0%{height:15%} 100%{height:100%} }
+        .mu-btn.muted .mbars i { animation:none; height:3px!important; }
+        @keyframes mb { 0%{height:15%} 100%{height:100%} }
 
-        /* ========== SPARKLES ========== */
-        .sparkle {
-            position:fixed; pointer-events:none; z-index:800;
-            animation: sparkPop .7s ease-out forwards;
-        }
-        @keyframes sparkPop {
-            0%{transform:translate(0,0) scale(0);opacity:1}
-            100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}
-        }
-
-        /* ========== CONFETTI ========== */
-        .confetti {
-            position:fixed; z-index:900; pointer-events:none;
-            opacity:0;
-            animation: confFall var(--fd,3s) linear forwards;
-            animation-delay: var(--dl,0s);
-        }
-        @keyframes confFall {
+        /* ===== FX ===== */
+        .sparkle { position:fixed; pointer-events:none; z-index:800; animation:spk .7s ease-out forwards; }
+        @keyframes spk { 0%{transform:translate(0,0) scale(0);opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0} }
+        .confetti { position:fixed; z-index:900; pointer-events:none; opacity:0; animation:cfall var(--fd,3s) linear forwards; animation-delay:var(--dl,0s); }
+        @keyframes cfall {
             0%{transform:translate(var(--xs,0),-20px) rotate(0) scale(0);opacity:0}
             10%{opacity:1;transform:translate(var(--xs,0),0) rotate(40deg) scale(1)}
             100%{transform:translate(var(--xe,30px),100vh) rotate(720deg) scale(.2);opacity:0}
         }
-
-        /* ========== PETAL RAIN ========== */
         .petal {
             position:fixed; pointer-events:none; z-index:50;
-            width:12px; height:16px;
-            background: radial-gradient(ellipse,#ff6b9d,#ff2d55);
-            border-radius: 50% 0 50% 50%;
-            opacity:0;
-            animation: petalFall var(--d) linear forwards;
-            animation-delay: var(--dl);
+            background:radial-gradient(ellipse,#ff6b9d,#ff2d55);
+            border-radius:50% 0 50% 50%; opacity:0;
+            animation:ptfall var(--d) linear forwards; animation-delay:var(--dl);
         }
-        @keyframes petalFall {
-            0%{transform:translate(0,-20px) rotate(0);opacity:0}
-            10%{opacity:.7}
-            100%{transform:translate(var(--dx),110vh) rotate(var(--rot,400deg));opacity:0}
-        }
-
-        /* ========== LIGHT BURST ========== */
-        .light-burst {
-            position:fixed; inset:0; z-index:999;
-            background:radial-gradient(circle,rgba(255,107,157,.35),transparent 70%);
-            opacity:0; pointer-events:none;
-            transition:opacity .6s;
-        }
+        @keyframes ptfall { 0%{transform:translate(0,-20px) rotate(0);opacity:0} 10%{opacity:.7} 100%{transform:translate(var(--dx),110vh) rotate(var(--rot,400deg));opacity:0} }
+        .light-burst { position:fixed; inset:0; z-index:999; background:radial-gradient(circle,rgba(255,107,157,.4),transparent 70%); opacity:0; pointer-events:none; transition:opacity .5s; }
         .light-burst.on { opacity:1; }
 
-        /* ========== UTILS ========== */
-        @keyframes fadeUp {
-            from{opacity:0;transform:translateY(25px)}
-            to{opacity:1;transform:translateY(0)}
-        }
-        @keyframes heartbeat {
-            0%,100%{transform:scale(1)}
-            14%{transform:scale(1.13)}
-            28%{transform:scale(1)}
-            42%{transform:scale(1.08)}
-        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(25px)} to{opacity:1;transform:translateY(0)} }
 
+        /* ===== RESPONSIVE ===== */
         @media(max-width:480px){
-            .photo-frame { padding:6px 6px 32px; }
-            .photo-frame img { max-width:82vw; }
+            .slide { padding:1rem; }
+            .photo-frame img { max-width:92vw; max-height:calc(var(--vh,1vh)*55); }
+        }
+        @media(min-width:768px) and (max-width:1024px){
+            .photo-frame img { max-width:min(80vw,550px); max-height:calc(var(--vh,1vh)*62); }
+            .video-outer { width:min(85vw,680px); }
+        }
+        @media(min-width:1025px){
+            .photo-frame img { max-width:min(60vw,600px); max-height:calc(var(--vh,1vh)*65); }
+            .video-outer { width:min(70vw,800px); }
         }
     </style>
 </head>
 <body>
 
-<!-- ===== BACKGROUND ===== -->
-<div id="bg-stars"></div>
-<div id="bg-hearts"></div>
+<div id="bgStars"></div>
+<div id="bgHearts"></div>
 <div class="light-burst" id="lightBurst"></div>
+<div id="transOverlay"></div>
 
-<!-- ===== MUSIC BTN ===== -->
-<button class="music-btn" id="musicBtn" aria-label="Toggle music">
+<button class="mu-btn" id="muBtn" aria-label="Toggle music">
     <div class="mbars"><i></i><i></i><i></i><i></i></div>
 </button>
 
-<!-- ===== SLIDES ===== -->
-
-<!-- 0: INTRO -->
-<div class="slide active" data-i="0" id="s-intro">
+<!-- SLIDE 0 : INTRO -->
+<div class="slide active" data-i="0">
     <p class="intro-sub">someone has a surprise for you</p>
-    <div class="envelope-wrap" id="envWrap">
+    <div class="env-wrap" id="envWrap">
         <div class="envelope">
-            <div class="env-body">
-                <div class="env-inner"></div>
-                <div class="env-letter"><span>Happy Valentine's Day</span></div>
-            </div>
+            <div class="env-body"><div class="env-inner"></div><div class="env-letter"><span>Happy Valentine's Day</span></div></div>
             <div class="env-flap"></div>
             <div class="env-seal">&#9829;</div>
         </div>
@@ -498,410 +380,397 @@
     <button class="start-btn" id="startBtn"><span>&#10084;&#65039; เปิดดูเลย</span></button>
 </div>
 
-<!-- 1: MESSAGE -->
-<div class="slide" data-i="1" id="s-msg">
+<!-- SLIDE 1 : MESSAGE -->
+<div class="slide" data-i="1">
     <div class="msg-card">
         <span class="icon">&#128140;</span>
-        <div class="typewriter-text" id="twMsg"></div>
+        <div class="tw-text" id="twMsg"></div>
     </div>
 </div>
 
-<!-- 2-6: PHOTOS -->
-<div class="slide" data-i="2" id="s-p1">
-    <div class="photo-frame anim-pop">
-        <img src="https://drive.google.com/thumbnail?id=1RwgEtK_C07TUrE4bqxh4ZhOxu5x7xlRM&sz=w1000" alt="Photo 1">
-    </div>
+<!-- SLIDE 2-6 : PHOTOS -->
+<div class="slide" data-i="2">
+    <div class="photo-frame" data-anim="a-pop"><img src="media/photo1.jpg" alt="us"></div>
     <span class="photo-counter">1 / 5</span>
 </div>
-<div class="slide" data-i="3" id="s-p2">
-    <div class="photo-frame anim-slide-up">
-        <img src="https://drive.google.com/thumbnail?id=1fcwfL0XZwNA-zuC4yGcgXw3Qixj0oBdX&sz=w1000" alt="Photo 2">
-    </div>
+<div class="slide" data-i="3">
+    <div class="photo-frame" data-anim="a-slideUp"><img src="media/photo2.jpg" alt="us"></div>
     <span class="photo-counter">2 / 5</span>
 </div>
-<div class="slide" data-i="4" id="s-p3">
-    <div class="photo-frame anim-zoom">
-        <img src="https://drive.google.com/thumbnail?id=1VeFt0DjEXwZdcanpJ7HcDdxPuTlU6FEu&sz=w1000" alt="Photo 3">
-    </div>
+<div class="slide" data-i="4">
+    <div class="photo-frame" data-anim="a-zoom"><img src="media/photo3.jpg" alt="us"></div>
     <span class="photo-counter">3 / 5</span>
 </div>
-<div class="slide" data-i="5" id="s-p4">
-    <div class="photo-frame anim-rotate-in">
-        <img src="https://drive.google.com/thumbnail?id=1-Yd4n70ppaws5y9PCgyW-8onQ-x9hoXr&sz=w1000" alt="Photo 4">
-    </div>
+<div class="slide" data-i="5">
+    <div class="photo-frame" data-anim="a-rotateIn"><img src="media/photo4.jpg" alt="us"></div>
     <span class="photo-counter">4 / 5</span>
 </div>
-<div class="slide" data-i="6" id="s-p5">
-    <div class="photo-frame anim-drop">
-        <img src="https://drive.google.com/thumbnail?id=13g4ZkaoRLBKYCuQWELofBRAOG9HXjTKZ&sz=w1000" alt="Photo 5">
-    </div>
+<div class="slide" data-i="6">
+    <div class="photo-frame" data-anim="a-drop"><img src="media/photo5.jpg" alt="us"></div>
     <span class="photo-counter">5 / 5</span>
 </div>
 
-<!-- 7-8: VIDEOS -->
-<div class="slide" data-i="7" id="s-v1">
-    <div class="video-wrap">
-        <iframe data-src="https://drive.google.com/file/d/1zXyKX01YHdaLuDXPrOgDlOMCu1D3gScn/preview" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<!-- SLIDE 7-8 : VIDEOS -->
+<div class="slide" data-i="7">
+    <div class="video-outer">
+        <video id="vid1" playsinline preload="metadata" src="media/video1.mp4"></video>
     </div>
     <p class="video-label">&#127916; Clip 1 / 2</p>
 </div>
-<div class="slide" data-i="8" id="s-v2">
-    <div class="video-wrap">
-        <iframe data-src="https://drive.google.com/file/d/1L9xVQYV2E1vsaJo2tDd46xe7eeikMpc_/preview" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<div class="slide" data-i="8">
+    <div class="video-outer">
+        <video id="vid2" playsinline preload="metadata" src="media/video2.mp4"></video>
     </div>
     <p class="video-label">&#127916; Clip 2 / 2</p>
 </div>
 
-<!-- 9: FINALE -->
-<div class="slide" data-i="9" id="s-finale">
+<!-- SLIDE 9 : FINALE -->
+<div class="slide" data-i="9">
     <div class="finale-flower">&#127801;</div>
     <div class="finale-lines" id="finaleLines"></div>
 </div>
 
-<!-- ===== NAV NEXT ===== -->
 <button class="nav-next" id="nextBtn">
     <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
 </button>
+<div class="prog" id="prog"></div>
 
-<!-- ===== PROGRESS ===== -->
-<div class="progress-bar" id="progBar"></div>
-
-<!-- ===== AUDIO ===== -->
 <audio id="bgMusic" loop preload="auto">
-    <source src="https://drive.google.com/uc?export=download&id=1HPzVWG2ApDWV7qKgks6zPJcEoKNKsT7I">
+    <source src="media/music.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-/* ============================================================
+/* =========================================================
    CONFIG
-   ============================================================ */
-const MSG_TEXT = 'อาจไม่มีอะไรให้หนู\u{1F97A} แต่พี่ก็ตั้งใจทำ อันนี้ให้แทนนะงับ รักหนูนะงับ\u{1F970}';
-
-const FINALE_LINES = [
+   ========================================================= */
+const MSG = 'อาจไม่มีอะไรให้หนู\u{1F97A} แต่พี่ก็ตั้งใจทำ อันนี้ให้แทนนะงับ รักหนูนะงับ\u{1F970}';
+const FINALE = [
     'Happy Valentine\'s Day งับ\u{1F970}',
     'อยู่กันไปนานนะงับ\u{1F618}',
     'รักกัน\u{1F498}',
     'คิดถึงกัน\u{2764}\u{FE0F}',
     'แบบนี้ไปนานนะ\u{1F60D}'
 ];
+const SLIDES = 10;
+const PHOTO_MS = 5500;
+const MSG_MS   = 3500;
 
-const TOTAL_SLIDES = 10; // 0=intro,1=msg,2-6=photos,7-8=videos,9=finale
-const PHOTO_AUTO   = 5000; // ms before auto-advance on photo slides
-const MSG_AUTO     = 3000; // ms after typewriter finishes
-const VIDEO_AUTO   = 45000;// fallback auto-advance for video slides (45s)
-
-/* ============================================================
+/* =========================================================
    STATE
-   ============================================================ */
-let current   = 0;
-let moving     = false;
-let autoTimer  = null;
-let musicOn    = false;
+   ========================================================= */
+let cur = 0, moving = false, autoT = null, musicOn = false, started = false;
 
-/* ============================================================
+/* =========================================================
    DOM
-   ============================================================ */
-const slides   = document.querySelectorAll('.slide');
-const bgMusic  = document.getElementById('bgMusic');
-const nextBtn  = document.getElementById('nextBtn');
-const progBar  = document.getElementById('progBar');
-const musicBtn = document.getElementById('musicBtn');
-const envWrap  = document.getElementById('envWrap');
-const startBtn = document.getElementById('startBtn');
-const lightB   = document.getElementById('lightBurst');
-const starsEl  = document.getElementById('bg-stars');
-const heartsEl = document.getElementById('bg-hearts');
+   ========================================================= */
+const S     = document.querySelectorAll('.slide');
+const music = document.getElementById('bgMusic');
+const nBtn  = document.getElementById('nextBtn');
+const prog  = document.getElementById('prog');
+const muBtn = document.getElementById('muBtn');
+const trans = document.getElementById('transOverlay');
+const lb    = document.getElementById('lightBurst');
+const vid1  = document.getElementById('vid1');
+const vid2  = document.getElementById('vid2');
 
-/* ============================================================
-   BACKGROUND : STARS & HEARTS
-   ============================================================ */
-function makeStars(n){
+/* =========================================================
+   VIEWPORT HEIGHT FIX (iOS Safari)
+   ========================================================= */
+function setVH(){
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', vh + 'px');
+}
+setVH();
+window.addEventListener('resize', setVH);
+
+/* =========================================================
+   BACKGROUND
+   ========================================================= */
+function mkStars(n){
+    const c=document.getElementById('bgStars');
     for(let i=0;i<n;i++){
-        const s=document.createElement('div');
-        s.className='star';
-        const sz=Math.random()*2.5+.5;
-        s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${Math.random()*4+2}s;--dl:${Math.random()*5}s;opacity:${Math.random()*.4+.1}`;
-        starsEl.appendChild(s);
+        const s=document.createElement('div'); s.className='star';
+        const z=Math.random()*2.5+.5;
+        s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${Math.random()*4+2}s;--dl:${Math.random()*5}s;opacity:${Math.random()*.4+.1}`;
+        c.appendChild(s);
     }
 }
-function makeHearts(n){
+function mkHearts(n){
+    const c=document.getElementById('bgHearts');
     const h=['\u2665','\u2764','\u2661'];
     for(let i=0;i<n;i++){
-        const d=document.createElement('div');
-        d.className='fheart';
-        d.textContent=h[Math.floor(Math.random()*h.length)];
-        d.style.cssText=`left:${Math.random()*100}%;--sz:${Math.random()*18+10}px;--d:${Math.random()*14+8}s;--dl:${Math.random()*12}s;--dx:${(Math.random()-.5)*70}px;--mo:${Math.random()*.25+.08}`;
-        heartsEl.appendChild(d);
+        const d=document.createElement('div'); d.className='fh';
+        d.textContent=h[~~(Math.random()*h.length)];
+        d.style.cssText=`left:${Math.random()*100}%;--sz:${Math.random()*18+10}px;--d:${Math.random()*14+8}s;--dl:${Math.random()*12}s;--dx:${(Math.random()-.5)*70}px;--mo:${Math.random()*.2+.1}`;
+        c.appendChild(d);
     }
 }
 
-/* ============================================================
-   PROGRESS BAR
-   ============================================================ */
-function buildProgress(){
-    for(let i=1;i<TOTAL_SLIDES;i++){
-        const d=document.createElement('span');
-        d.className='pdot';
-        progBar.appendChild(d);
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+function buildProg(){
+    for(let i=1;i<SLIDES;i++){
+        const d=document.createElement('span'); d.className='pd'; prog.appendChild(d);
     }
 }
-function updateProgress(){
-    const dots=progBar.querySelectorAll('.pdot');
-    dots.forEach((d,i)=>{
+function updProg(){
+    prog.querySelectorAll('.pd').forEach((d,i)=>{
         const si=i+1;
-        d.classList.toggle('current',si===current);
-        d.classList.toggle('done',si<current);
+        d.classList.toggle('cur',si===cur);
+        d.classList.toggle('done',si<cur);
     });
 }
 
-/* ============================================================
-   SLIDE NAVIGATION
-   ============================================================ */
+/* =========================================================
+   SLIDE NAV (with transition effect)
+   ========================================================= */
 function goTo(idx){
-    if(moving||idx===current||idx<0||idx>=TOTAL_SLIDES) return;
+    if(moving||idx===cur||idx<0||idx>=SLIDES) return;
     moving=true;
-    clearTimeout(autoTimer);
+    clrAuto();
     hideNext();
 
-    const oldSlide=slides[current];
-    const newSlide=slides[idx];
+    const old=S[cur], nw=S[idx];
 
-    // leave old
-    oldSlide.classList.remove('active');
+    // transition flash
+    trans.classList.add('on');
 
-    // reset photo animation on old slide
-    const oldFrame=oldSlide.querySelector('.photo-frame');
-    if(oldFrame) resetPhotoAnim(oldFrame);
+    // leave animation
+    old.classList.add('leaving');
+    old.classList.remove('active');
 
-    // stop video iframe if leaving video slide
-    if(current===7||current===8){
-        const ifr=oldSlide.querySelector('iframe');
-        if(ifr) ifr.src='';
-    }
+    // cleanup old photo anim
+    const oldF=old.querySelector('.photo-frame');
+    if(oldF){ oldF.classList.remove('anim-active'); oldF.style.opacity='0'; oldF.style.transform='scale(0) rotate(-5deg)'; }
+
+    // stop old video
+    const oldV=old.querySelector('video');
+    if(oldV){ oldV.pause(); oldV.currentTime=0; }
 
     setTimeout(()=>{
-        current=idx;
-        newSlide.classList.add('active');
-        updateProgress();
+        old.classList.remove('leaving');
+        trans.classList.remove('on');
+        cur=idx;
+        nw.classList.add('active');
+        updProg();
         onEnter(idx);
         moving=false;
-    },700);
+    },650);
 }
 
-function goNext(){
-    if(current<TOTAL_SLIDES-1) goTo(current+1);
-}
+function goNext(){ if(cur<SLIDES-1) goTo(cur+1); }
+function showNext(ms){ clrNext(); nBtn._t=setTimeout(()=>nBtn.classList.add('show'),ms||0); }
+function hideNext(){ clrNext(); nBtn.classList.remove('show'); }
+function clrNext(){ clearTimeout(nBtn._t); }
+function clrAuto(){ clearTimeout(autoT); }
 
-function showNext(delay){
-    clearTimeout(nextBtn._t);
-    nextBtn._t=setTimeout(()=>nextBtn.classList.add('show'),delay||0);
-}
-function hideNext(){ clearTimeout(nextBtn._t); nextBtn.classList.remove('show'); }
-
-function resetPhotoAnim(frame){
-    const cl=frame.className;
-    frame.style.animation='none';
-    frame.offsetHeight; // reflow
-    frame.style.animation='';
-}
-
-/* ============================================================
-   ON SLIDE ENTER
-   ============================================================ */
+/* =========================================================
+   SLIDE ENTER HANDLERS
+   ========================================================= */
 function onEnter(idx){
-    switch(idx){
-        case 1: enterMessage(); break;
-        case 2: case 3: case 4: case 5: case 6:
-            enterPhoto(idx); break;
-        case 7: case 8:
-            enterVideo(idx); break;
-        case 9: enterFinale(); break;
-    }
+    if(idx===1) enterMsg();
+    else if(idx>=2&&idx<=6) enterPhoto(idx);
+    else if(idx===7||idx===8) enterVideo(idx);
+    else if(idx===9) enterFinale();
 }
 
 // -- Message --
-function enterMessage(){
-    const el=document.getElementById('twMsg');
-    el.innerHTML='';
-    typewrite(el, MSG_TEXT, 55, ()=>{
-        showNext(500);
-        autoTimer=setTimeout(goNext, MSG_AUTO);
+function enterMsg(){
+    const el=document.getElementById('twMsg'); el.innerHTML='';
+    typewrite(el, MSG, 50, ()=>{
+        showNext(400);
+        autoT=setTimeout(goNext, MSG_MS);
     });
 }
-
-function typewrite(el, text, speed, cb){
+function typewrite(el,txt,spd,cb){
     let i=0;
-    const cursor=document.createElement('span');
-    cursor.className='typewriter-cursor';
-    el.appendChild(cursor);
-    function tick(){
-        if(i<text.length){
-            el.insertBefore(document.createTextNode(text[i]),cursor);
-            i++;
-            setTimeout(tick,speed);
-        } else {
-            setTimeout(()=>cursor.remove(),1500);
-            if(cb) cb();
-        }
-    }
-    tick();
+    const c=document.createElement('span'); c.className='tw-cursor'; el.appendChild(c);
+    (function tick(){
+        if(i<txt.length){ el.insertBefore(document.createTextNode(txt[i]),c); i++; setTimeout(tick,spd); }
+        else { setTimeout(()=>c.remove(),1200); if(cb)cb(); }
+    })();
 }
 
 // -- Photo --
-function enterPhoto(){
-    showNext(1200);
-    autoTimer=setTimeout(goNext, PHOTO_AUTO);
+function enterPhoto(idx){
+    const frame=S[idx].querySelector('.photo-frame');
+    // reset then animate
+    frame.style.opacity='0';
+    frame.style.transform='scale(0) rotate(-5deg)';
+    frame.classList.remove('anim-active');
+
+    // trigger animation after a tiny delay (ensure reflow)
+    requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+            frame.style.opacity='';
+            frame.style.transform='';
+            frame.classList.add('anim-active', frame.dataset.anim);
+        });
+    });
+
+    showNext(1400);
+    autoT=setTimeout(goNext, PHOTO_MS);
 }
 
 // -- Video --
 function enterVideo(idx){
-    // fade out music
-    fadeVolume('out',500);
-    // load iframe
-    const ifr=slides[idx].querySelector('iframe');
-    if(ifr && ifr.dataset.src) ifr.src=ifr.dataset.src;
-    showNext(2000);
-    autoTimer=setTimeout(goNext, VIDEO_AUTO);
+    fadeVol('out',400);
+    const v = idx===7 ? vid1 : vid2;
+    v.currentTime=0;
+    v.play().catch(()=>{});
+
+    v.onended = function(){
+        showNext(0);
+        autoT=setTimeout(goNext, 3000);
+    };
+
+    showNext(2500);
+    // safety fallback auto
+    autoT=setTimeout(goNext, 60000);
 }
 
 // -- Finale --
 function enterFinale(){
-    // resume music
-    fadeVolume('in',800);
-    // petal rain
-    launchPetals(40);
-    // show lines one by one
-    const container=document.getElementById('finaleLines');
-    container.innerHTML='';
-    FINALE_LINES.forEach((line,i)=>{
-        const p=document.createElement('p');
-        p.className='finale-line';
-        p.textContent=line;
-        container.appendChild(p);
-        setTimeout(()=>p.classList.add('shown'), 1800 + i*1400);
+    fadeVol('in',800);
+    launchPetals(45);
+    const c=document.getElementById('finaleLines'); c.innerHTML='';
+    FINALE.forEach((ln,i)=>{
+        const p=document.createElement('p'); p.className='finale-line'; p.textContent=ln;
+        c.appendChild(p);
+        setTimeout(()=>p.classList.add('shown'), 1800+i*1400);
     });
-    // confetti after all lines
-    setTimeout(()=>launchConfetti(70), 1800 + FINALE_LINES.length*1400 + 500);
+    setTimeout(()=>launchConfetti(80), 1800+FINALE.length*1400+400);
 }
 
-/* ============================================================
-   MUSIC CONTROL
-   ============================================================ */
+/* =========================================================
+   MUSIC
+   ========================================================= */
 function startMusic(){
-    bgMusic.volume=1;
-    bgMusic.play().then(()=>{
+    music.volume=1;
+    music.play().then(()=>{
         musicOn=true;
-        musicBtn.classList.add('show');
-        musicBtn.classList.remove('muted');
-    }).catch(e=>console.log('Audio play blocked:',e));
+        muBtn.classList.add('show');
+        muBtn.classList.remove('muted');
+    }).catch(e=>{
+        console.log('Music play err:',e);
+        // try again on next user tap
+        document.addEventListener('touchstart', function retry(){
+            music.play().then(()=>{ musicOn=true; muBtn.classList.add('show'); }).catch(()=>{});
+            document.removeEventListener('touchstart',retry);
+        },{once:true});
+    });
 }
 
-function fadeVolume(dir, dur){
+function fadeVol(dir,dur){
     const steps=20, iv=dur/steps, sv=1/steps;
     let step=0;
     if(dir==='out'){
         const f=setInterval(()=>{
-            step++;
-            bgMusic.volume=Math.max(0,1-sv*step);
-            if(step>=steps){ clearInterval(f); bgMusic.pause(); bgMusic.volume=0; }
+            step++; music.volume=Math.max(0,1-sv*step);
+            if(step>=steps){clearInterval(f);music.pause();music.volume=0;}
         },iv);
     } else {
-        bgMusic.volume=0;
-        bgMusic.play().catch(()=>{});
+        music.volume=0; music.play().catch(()=>{});
+        musicOn=true; muBtn.classList.remove('muted');
         const f=setInterval(()=>{
-            step++;
-            bgMusic.volume=Math.min(1,sv*step);
-            if(step>=steps){ clearInterval(f); bgMusic.volume=1; }
+            step++; music.volume=Math.min(1,sv*step);
+            if(step>=steps){clearInterval(f);music.volume=1;}
         },iv);
     }
 }
 
-function toggleMusic(){
-    if(musicOn){ bgMusic.pause(); musicOn=false; musicBtn.classList.add('muted'); }
-    else { bgMusic.play(); musicOn=true; musicBtn.classList.remove('muted'); }
+function toggleMu(){
+    if(musicOn){music.pause();musicOn=false;muBtn.classList.add('muted');}
+    else{music.play();musicOn=true;muBtn.classList.remove('muted');}
 }
 
-/* ============================================================
-   EFFECTS: SPARKLES, CONFETTI, PETALS
-   ============================================================ */
+/* =========================================================
+   FX
+   ========================================================= */
 function sparkle(x,y){
-    const syms=['\u2665','\u2728','\u2764','\u2606'];
+    const sym=['\u2665','\u2728','\u2764','\u2606'];
     for(let i=0;i<6;i++){
-        const s=document.createElement('div');
-        s.className='sparkle';
-        s.textContent=syms[Math.floor(Math.random()*syms.length)];
-        const a=Math.PI*2/6*i+Math.random()*.5;
-        const dist=Math.random()*50+25;
-        s.style.cssText=`left:${x}px;top:${y}px;--dx:${Math.cos(a)*dist}px;--dy:${Math.sin(a)*dist}px;font-size:${Math.random()*8+10}px;color:hsl(${340+Math.random()*30},85%,${55+Math.random()*20}%)`;
+        const s=document.createElement('div'); s.className='sparkle';
+        s.textContent=sym[~~(Math.random()*sym.length)];
+        const a=Math.PI*2/6*i+Math.random()*.5, dist=Math.random()*50+25;
+        s.style.cssText=`left:${x}px;top:${y}px;--dx:${Math.cos(a)*dist}px;--dy:${Math.sin(a)*dist}px;font-size:${~~(Math.random()*8+10)}px;color:hsl(${340+~~(Math.random()*30)},85%,${55+~~(Math.random()*20)}%)`;
         document.body.appendChild(s);
         setTimeout(()=>s.remove(),800);
     }
 }
-
 function launchConfetti(n){
-    const colors=['#ff2d55','#ff6b9d','#ffd700','#e91e63','#ff8a80','#f48fb1'];
-    const syms=['\u2665','\u2764','\u2661','\u2763'];
+    const cols=['#ff2d55','#ff6b9d','#ffd700','#e91e63','#ff8a80','#f48fb1'];
+    const sym=['\u2665','\u2764','\u2661','\u2763'];
     for(let i=0;i<n;i++){
-        const c=document.createElement('div');
-        c.className='confetti';
+        const c=document.createElement('div'); c.className='confetti';
         const xs=(Math.random()-.5)*150, xe=xs+(Math.random()-.5)*250;
         if(Math.random()>.4){
-            c.textContent=syms[Math.floor(Math.random()*syms.length)];
-            c.style.color=colors[Math.floor(Math.random()*colors.length)];
-            c.style.fontSize=(Math.random()*12+10)+'px';
+            c.textContent=sym[~~(Math.random()*sym.length)];
+            c.style.color=cols[~~(Math.random()*cols.length)];
+            c.style.fontSize=(~~(Math.random()*12+10))+'px';
         } else {
-            c.style.cssText+=`width:${Math.random()*8+5}px;height:${Math.random()*8+5}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:50%;`;
+            c.style.cssText+=`width:${~~(Math.random()*8+5)}px;height:${~~(Math.random()*8+5)}px;background:${cols[~~(Math.random()*cols.length)]};border-radius:50%;`;
         }
         c.style.cssText+=`left:${Math.random()*100}vw;--xs:${xs}px;--xe:${xe}px;--fd:${Math.random()*2.5+2}s;--dl:${Math.random()*.8}s;`;
-        document.body.appendChild(c);
-        setTimeout(()=>c.remove(),5500);
+        document.body.appendChild(c); setTimeout(()=>c.remove(),5500);
     }
 }
-
 function launchPetals(n){
     for(let i=0;i<n;i++){
-        const p=document.createElement('div');
-        p.className='petal';
-        p.style.cssText=`left:${Math.random()*100}vw;--d:${Math.random()*4+3}s;--dl:${Math.random()*4}s;--dx:${(Math.random()-.5)*100}px;--rot:${Math.random()*600+200}deg;width:${Math.random()*8+8}px;height:${Math.random()*10+10}px;`;
-        document.body.appendChild(p);
-        setTimeout(()=>p.remove(),9000);
+        const p=document.createElement('div'); p.className='petal';
+        p.style.cssText=`left:${Math.random()*100}vw;--d:${Math.random()*4+3}s;--dl:${Math.random()*4}s;--dx:${(Math.random()-.5)*100}px;--rot:${~~(Math.random()*600+200)}deg;width:${~~(Math.random()*8+8)}px;height:${~~(Math.random()*10+10)}px;`;
+        document.body.appendChild(p); setTimeout(()=>p.remove(),9000);
     }
 }
 
-/* ============================================================
-   OPEN ENVELOPE → START
-   ============================================================ */
-function openEnvelope(){
-    envWrap.classList.add('opened');
-    setTimeout(()=>lightB.classList.add('on'),600);
+/* =========================================================
+   OPEN ENVELOPE
+   ========================================================= */
+function openEnv(){
+    if(started) return;
+    started=true;
+    document.getElementById('envWrap').classList.add('opened');
+    setTimeout(()=>lb.classList.add('on'),500);
     setTimeout(()=>{
         startMusic();
-        lightB.classList.remove('on');
-        progBar.classList.add('show');
+        lb.classList.remove('on');
+        prog.classList.add('show');
         goTo(1);
-    },1600);
+    },1500);
 }
 
-/* ============================================================
+/* =========================================================
+   SWIPE SUPPORT (mobile)
+   ========================================================= */
+let touchX=0;
+document.addEventListener('touchstart',e=>{touchX=e.changedTouches[0].screenX;},{passive:true});
+document.addEventListener('touchend',e=>{
+    const diff=touchX-e.changedTouches[0].screenX;
+    if(diff>60 && cur>0 && cur<SLIDES-1) goNext(); // swipe left = next
+},{passive:true});
+
+/* =========================================================
    INIT
-   ============================================================ */
+   ========================================================= */
 function init(){
-    makeStars(120);
-    makeHearts(18);
-    buildProgress();
+    mkStars(120);
+    mkHearts(18);
+    buildProg();
 
-    startBtn.addEventListener('click', openEnvelope);
-    envWrap.addEventListener('click', openEnvelope);
-    nextBtn.addEventListener('click', goNext);
-    musicBtn.addEventListener('click', toggleMusic);
+    document.getElementById('startBtn').addEventListener('click', openEnv);
+    document.getElementById('envWrap').addEventListener('click', openEnv);
+    nBtn.addEventListener('click', goNext);
+    muBtn.addEventListener('click', toggleMu);
 
-    document.addEventListener('click', e=>{
-        if(current>0) sparkle(e.clientX, e.clientY);
-    });
+    document.addEventListener('click',e=>{ if(cur>0) sparkle(e.clientX,e.clientY); });
+
+    // preload music
+    music.load();
 }
 
-if(document.fonts&&document.fonts.ready) document.fonts.ready.then(init);
-else document.addEventListener('DOMContentLoaded',init);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(init);
+else document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
