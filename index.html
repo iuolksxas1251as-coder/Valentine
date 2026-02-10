@@ -271,18 +271,22 @@
     <span class="photo-counter">5 / 5</span>
 </div>
 
-<!-- SLIDE 7-8 : VIDEOS -->
+<!-- SLIDE 7-9 : VIDEOS -->
 <div class="slide" data-i="7">
     <div class="video-outer"><video id="vid1" playsinline preload="metadata" src="media/video1.mp4"></video></div>
-    <p class="video-label">&#127916; Clip 1 / 2</p>
+    <p class="video-label">&#127916; Clip 1 / 3</p>
 </div>
 <div class="slide" data-i="8">
     <div class="video-outer"><video id="vid2" playsinline preload="metadata" src="media/video2.mp4"></video></div>
-    <p class="video-label">&#127916; Clip 2 / 2</p>
+    <p class="video-label">&#127916; Clip 2 / 3</p>
+</div>
+<div class="slide" data-i="9">
+    <div class="video-outer"><video id="vid3" playsinline preload="metadata" src="media/video3.mp4"></video></div>
+    <p class="video-label">&#127916; Clip 3 / 3</p>
 </div>
 
-<!-- SLIDE 9 : FINALE -->
-<div class="slide" data-i="9">
+<!-- SLIDE 10 : FINALE -->
+<div class="slide" data-i="10">
     <div class="ripple-layer" id="rippleLayer"></div>
     <div class="finale-bouquet" id="finaleBouquet"><img src="media/bouquet.png" alt="bouquet"></div>
     <div class="finale-lines" id="finaleLines"></div>
@@ -331,10 +335,11 @@ const DECOS=[
     {syms:['\u266A','\u266B','\u266C'],color:'rgba(255,180,220,.3)'},       // 5 photo4: music notes
     {syms:['\u2736','\u2739','\u273A'],color:'rgba(255,200,200,.3)'},       // 6 photo5: burst stars
     {syms:['\u2756','\u2666','\u25C7'],color:'rgba(180,200,255,.3)'},       // 7 vid1: diamonds
-    {syms:['\u2726','\u2735','\u2738'],color:'rgba(220,180,255,.3)'}        // 8 vid2: stars
+    {syms:['\u2726','\u2735','\u2738'],color:'rgba(220,180,255,.3)'},       // 8 vid2: stars
+    {syms:['\u2742','\u2743','\u2749'],color:'rgba(255,190,230,.3)'}        // 9 vid3: florettes
 ];
 
-const SLIDES=10, PHOTO_MS=6000, MSG_MS=3500;
+const SLIDES=11, PHOTO_MS=6000, MSG_MS=3500;
 
 /* =========================================================
    STATE
@@ -353,6 +358,7 @@ const trans=document.getElementById('transOverlay');
 const lb=document.getElementById('lightBurst');
 const vid1=document.getElementById('vid1');
 const vid2=document.getElementById('vid2');
+const vid3=document.getElementById('vid3');
 const finGlow=document.getElementById('finaleGlow');
 
 /* =========================================================
@@ -445,8 +451,8 @@ function clrAuto(){clearTimeout(autoT)}
 function onEnter(idx){
     if(idx===1)enterMsg();
     else if(idx>=2&&idx<=6)enterPhoto(idx);
-    else if(idx===7||idx===8)enterVideo(idx);
-    else if(idx===9)enterFinale();
+    else if(idx>=7&&idx<=9)enterVideo(idx);
+    else if(idx===10)enterFinale();
 }
 
 // -- Message --
@@ -480,7 +486,7 @@ function enterPhoto(idx){
 // -- Video --
 function enterVideo(idx){
     fadeVol('out',400);
-    const v=idx===7?vid1:vid2;v.currentTime=0;v.play().catch(()=>{});
+    const v=idx===7?vid1:idx===8?vid2:vid3;v.currentTime=0;v.play().catch(()=>{});
     v.onended=function(){clrAuto();goNext()};
     showNext(1500);autoT=setTimeout(goNext,60000);
 }
@@ -568,7 +574,7 @@ function stopRipples(){clearInterval(rippleIv);rippleIv=null}
    SLIDE DECORATIONS
    ========================================================= */
 function mkDecos(){
-    for(let si=0;si<9;si++){
+    for(let si=0;si<10;si++){
         const slide=S[si];
         const deco=DECOS[si];
         const count=5+Math.floor(Math.random()*2);
