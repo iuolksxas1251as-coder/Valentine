@@ -183,6 +183,25 @@
             background:radial-gradient(ellipse 80% 60% at 50% 50%, rgba(180,80,140,.12) 0%, transparent 70%)}
         .finale-glow.on{opacity:1}
 
+        /* ===== WATER RIPPLE (FINALE) ===== */
+        .ripple-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:6}
+        .ripple-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(255,200,220,.18);transform:translate(-50%,-50%);animation:rippleOut var(--d,3.5s) ease-out forwards}
+        .ripple-ring:nth-child(3n+1){border-color:rgba(200,160,240,.12)}
+        .ripple-ring:nth-child(3n+2){border-color:rgba(255,215,180,.12)}
+        @keyframes rippleOut{
+            0%{width:0;height:0;opacity:.5}
+            40%{opacity:.25}
+            100%{width:var(--sz,250px);height:var(--sz,250px);opacity:0}
+        }
+
+        /* ===== SLIDE DECORATIONS ===== */
+        .slide-deco{position:absolute;pointer-events:none;opacity:0;animation:decoFloat var(--d,5s) ease-in-out infinite;animation-delay:var(--dl,0s);color:var(--dc,rgba(255,180,210,.3));font-size:var(--sz,14px);z-index:8;will-change:transform,opacity}
+        @keyframes decoFloat{
+            0%,100%{opacity:var(--o1,.12);transform:translate(0,0) rotate(0deg) scale(.85)}
+            33%{transform:translate(var(--tx,5px),var(--ty,-8px)) rotate(var(--r,10deg)) scale(1.05);opacity:var(--o2,.3)}
+            66%{transform:translate(calc(var(--tx,5px) * -0.6),calc(var(--ty,-8px) * 1.3)) rotate(calc(var(--r,10deg) * -0.8)) scale(.95);opacity:var(--o2,.3)}
+        }
+
         /* ===== RESPONSIVE ===== */
         @media(max-width:480px){.slide{padding:1rem}.photo-frame img{max-width:92vw;max-height:calc(var(--vh,1vh)*48)}.photo-cap{max-width:90vw;font-size:clamp(.82rem,2.8vw,1rem)}}
         @media(min-width:768px) and (max-width:1024px){.photo-frame img{max-width:min(80vw,550px);max-height:calc(var(--vh,1vh)*55)}.video-outer{width:min(85vw,680px)}}
@@ -264,6 +283,7 @@
 
 <!-- SLIDE 9 : FINALE -->
 <div class="slide" data-i="9">
+    <div class="ripple-layer" id="rippleLayer"></div>
     <div class="finale-bouquet" id="finaleBouquet"><img src="media/bouquet.png" alt="bouquet"></div>
     <div class="finale-lines" id="finaleLines"></div>
 </div>
@@ -300,6 +320,18 @@ const FINALE = [
     {t:'ก็ยังมีเราอยู่ข้างกันเสมอ', type:'poem'},
     {t:'จนคำว่า "ตลอดไป" ไม่ใช่แค่คำพูด', type:'poem'},
     {t:'แต่เป็นชีวิตจริงของเรา \u{2764}\u{FE0F}\u{2728}', type:'poem', climax:true}
+];
+
+const DECOS=[
+    {syms:['\u2726','\u2727','\u22C6'],color:'rgba(255,215,180,.3)'},       // 0 intro: sparkle stars
+    {syms:['\u2661','\u2665','\u2764'],color:'rgba(255,150,180,.3)'},       // 1 msg: hearts
+    {syms:['\u273F','\u2740','\u2741'],color:'rgba(255,180,200,.3)'},       // 2 photo1: flowers
+    {syms:['\u2606','\u2727','\u22C6'],color:'rgba(200,180,255,.3)'},       // 3 photo2: stars
+    {syms:['\u274B','\u2724','\u2725'],color:'rgba(255,200,180,.3)'},       // 4 photo3: ornaments
+    {syms:['\u266A','\u266B','\u266C'],color:'rgba(255,180,220,.3)'},       // 5 photo4: music notes
+    {syms:['\u2736','\u2739','\u273A'],color:'rgba(255,200,200,.3)'},       // 6 photo5: burst stars
+    {syms:['\u2756','\u2666','\u25C7'],color:'rgba(180,200,255,.3)'},       // 7 vid1: diamonds
+    {syms:['\u2726','\u2735','\u2738'],color:'rgba(220,180,255,.3)'}        // 8 vid2: stars
 ];
 
 const SLIDES=10, PHOTO_MS=6000, MSG_MS=3500;
@@ -456,7 +488,7 @@ function enterVideo(idx){
 // -- Finale --
 function enterFinale(){
     fadeVol('in',800);launchPetals(40);
-    finGlow.classList.add('on');
+    finGlow.classList.add('on');startRipples();
     const bq=document.getElementById('finaleBouquet');
     setTimeout(()=>bq.classList.add('float'),1800);
     const c=document.getElementById('finaleLines');c.innerHTML='';
@@ -508,6 +540,58 @@ function launchPetals(n){
 }
 
 /* =========================================================
+   WATER RIPPLE (FINALE)
+   ========================================================= */
+let rippleIv=null;
+function startRipples(){
+    const layer=document.getElementById('rippleLayer');
+    if(!layer)return;
+    function spawnRipple(){
+        const x=15+Math.random()*70, y=15+Math.random()*70;
+        const baseSz=120+Math.random()*180;
+        const baseDur=3+Math.random()*2;
+        for(let i=0;i<3;i++){
+            const r=document.createElement('div');r.className='ripple-ring';
+            const sz=baseSz*(0.7+i*0.2);
+            const dur=baseDur+i*0.4;
+            r.style.cssText=`left:${x}%;top:${y}%;--sz:${sz}px;--d:${dur}s;animation-delay:${i*0.25}s`;
+            layer.appendChild(r);
+            setTimeout(()=>r.remove(),(dur+i*0.25)*1000+200);
+        }
+    }
+    spawnRipple();
+    rippleIv=setInterval(spawnRipple,2200);
+}
+function stopRipples(){clearInterval(rippleIv);rippleIv=null}
+
+/* =========================================================
+   SLIDE DECORATIONS
+   ========================================================= */
+function mkDecos(){
+    for(let si=0;si<9;si++){
+        const slide=S[si];
+        const deco=DECOS[si];
+        const count=5+Math.floor(Math.random()*2);
+        for(let i=0;i<count;i++){
+            const d=document.createElement('span');
+            d.className='slide-deco';
+            d.textContent=deco.syms[Math.floor(Math.random()*deco.syms.length)];
+            const isTop=i<count/2;
+            const x=6+Math.random()*88;
+            const y=isTop?(2+Math.random()*12):(83+Math.random()*13);
+            const sz=10+Math.random()*10;
+            const dur=4+Math.random()*5;
+            const delay=Math.random()*6;
+            const tx=(Math.random()-.5)*18;
+            const ty=(Math.random()-.5)*10;
+            const rot=5+Math.random()*20;
+            d.style.cssText=`left:${x}%;top:${y}%;--sz:${sz}px;--d:${dur}s;--dl:${delay}s;--dc:${deco.color};--tx:${tx}px;--ty:${ty}px;--r:${rot}deg;--o1:${(.1+Math.random()*.1).toFixed(2)};--o2:${(.25+Math.random()*.15).toFixed(2)}`;
+            slide.appendChild(d);
+        }
+    }
+}
+
+/* =========================================================
    OPEN ENVELOPE
    ========================================================= */
 function openEnv(){
@@ -528,7 +612,7 @@ document.addEventListener('touchend',e=>{const d=touchX-e.changedTouches[0].scre
    INIT
    ========================================================= */
 function init(){
-    mkAmbient();mkStars(90);mkHearts(12);mkBokeh(20);buildProg();
+    mkAmbient();mkStars(90);mkHearts(12);mkBokeh(20);mkDecos();buildProg();
     document.getElementById('startBtn').addEventListener('click',openEnv);
     document.getElementById('envWrap').addEventListener('click',openEnv);
     nBtn.addEventListener('click',goNext);
